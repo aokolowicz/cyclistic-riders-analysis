@@ -1,0 +1,14 @@
+# Changelog
+This file contains the notable changes to the project
+
+Version 1.0.0 (2024-08-12)
+## New
+    - Merged all 12 CSV data files into one data frame
+    - Added column ride_length to calculate the length of each ride
+    - Added column day_of_week to calculate the day of the week that each ride started and changed to 1 = Sunday and 7 = Saturday
+
+## Changes 
+    - Cleaned column names (only characters, numbers, and underscores)
+
+## Fixes
+    - 
