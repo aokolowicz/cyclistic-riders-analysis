@@ -1,6 +1,10 @@
 # Changelog
 This file contains the notable changes to the project
 
+Version 1.0.1 (2024-08-14)
+## New
+    - Added check for missing and inconsistent values
+
 Version 1.0.0 (2024-08-12)
 ## New
     - Merged all 12 CSV data files into one data frame
@@ -9,6 +13,3 @@ Version 1.0.0 (2024-08-12)
 
 ## Changes 
     - Cleaned column names (only characters, numbers, and underscores)
-
-## Fixes
-    - 
