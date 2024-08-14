@@ -3,6 +3,7 @@ library(tidyverse)
 library(dplyr)
 library(readr)
 library(janitor)
+library(rlang)
 
 # Set working directory
 setwd("C:/Users/Ola/Desktop/Adi/dev/google-data-analytics-certificate/cyclistic-riders-analysis")
@@ -26,6 +27,9 @@ tripdata <- rbind(tripdata_202308, tripdata_202309, tripdata_202310, tripdata_20
                   tripdata_202312, tripdata_202401, tripdata_202402, tripdata_202403,
                   tripdata_202404, tripdata_202405, tripdata_202406, tripdata_202407)
 
+# OR
+tripdata <- read_csv("tripdata-merged.csv")
+
 # Explore the data
 head(tripdata)
 str(tripdata)
@@ -48,14 +52,31 @@ head(tripdata)
 # Count the numbers of members & casual riders
 colnames(tripdata)
 tripdata %>% group_by(member_casual) %>% tally()
+# Count the numbers of bike types
 tripdata %>% group_by(rideable_type) %>% tally()
-# Check if there are NA values in station names
-col <- start_station_name
-tripdata %>% filter(is.na(col))
 
+# Check if there are NA values
+# sym(col) converts the column name (a string) into a symbol
+# !! unquotes the symbol, allowing dplyr to evaluate it within filter()
 for (col in colnames(tripdata)) {
   print(col)
-  print(head(tripdata %>% filter(is.na(tripdata[col]))))
+  print(tripdata %>% filter(is.na(!!sym(col))))
 }
 
-tripdata %>% group_by(end_station_name) %>% tally() %>% arrange(-n)
+# Check if missing station ids and names can be filled
+# Non-missing start_station_name values
+View(tripdata %>% filter(!is.na(start_station_name)) %>% 
+  select(start_station_name, start_station_id, start_lat, start_lng))
+# Missing start_station_name values
+View(tripdata %>% filter(is.na(start_station_name)) %>% 
+  select(start_station_name, start_station_id, start_lat, start_lng))
+# Non-missing end_station_name values and non-missing end_lat and end_lng values
+View(tripdata %>% filter(!(is.na(end_station_name)&is.na(end_lat)&is.na(end_lng))) %>% 
+  select(end_station_name, end_station_id, end_lat, end_lng))
+# Missing end_station_name values and non-missing end_lat and end_lng values
+View(tripdata %>% filter(is.na(end_station_name)&!(is.na(end_lat)&is.na(end_lng))) %>% 
+       select(end_station_name, end_station_id, end_lat, end_lng))
+# Missing end_station_name, end_lat, and end_lng values
+View(tripdata %>% filter(is.na(end_station_name)&is.na(end_lat)&is.na(end_lng)) %>% 
+       select(end_station_name, end_station_id, end_lat, end_lng))
+
