@@ -3,7 +3,11 @@ This file contains the notable changes to the project
 
 Version 1.0.1 (2024-08-14)
 ## New
-    - Added check for missing and inconsistent values
+    - Added check for missing and inconsistent values (membership types, bike types, dates, min and max ride_length, missing values in all columns)
+    - Added check if missing values can be filled in
+    - Added check for truncated data
+## Fix
+    - Removed trips with a length less than zero from the dataset
 
 Version 1.0.0 (2024-08-12)
 ## New

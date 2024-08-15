@@ -4,6 +4,7 @@ library(dplyr)
 library(readr)
 library(janitor)
 library(rlang)
+library(lubridate)
 
 # Set working directory
 setwd("C:/Users/Ola/Desktop/Adi/dev/google-data-analytics-certificate/cyclistic-riders-analysis")
@@ -54,6 +55,30 @@ colnames(tripdata)
 tripdata %>% group_by(member_casual) %>% tally()
 # Count the numbers of bike types
 tripdata %>% group_by(rideable_type) %>% tally()
+# Check if trip not started or not ended in the analyzed period
+tripdata %>% filter(started_at <= "2023-07-31")
+tripdata %>% filter(ended_at <= "2023-07-31")
+tripdata %>% filter(started_at >= "2024-08-01")
+tripdata %>% filter(ended_at >= "2024-08-01")
+# Check max and min ride_length
+tripdata %>% summarize(max_len_h = seconds_to_period(max(ride_length)),
+                       min_len_h = seconds_to_period(min(ride_length)))
+# Number of trips ended before the rent (sic!)
+tripdata %>% filter(ride_length < 0) %>% group_by(member_casual) %>% 
+  tally()
+# Number of trips longer than one day
+tripdata %>% filter(ride_length > days(1)) %>% group_by(member_casual) %>%
+  tally()
+
+# Check for truncated data
+View(tripdata %>% mutate(date = as.Date(started_at)) %>%
+  group_by(date) %>% tally())
+# Check the number of days in each month of trips
+tripdata %>% mutate(date = as.Date(started_at),
+                    month = as.POSIXlt(started_at)$mon + 1) %>%
+  group_by(date, month) %>% summarize() %>% 
+  group_by(month) %>% summarize(no_of_days = n())
+
 
 # Check if there are NA values
 # sym(col) converts the column name (a string) into a symbol
@@ -80,3 +105,6 @@ View(tripdata %>% filter(is.na(end_station_name)&!(is.na(end_lat)&is.na(end_lng)
 View(tripdata %>% filter(is.na(end_station_name)&is.na(end_lat)&is.na(end_lng)) %>% 
        select(end_station_name, end_station_id, end_lat, end_lng))
 
+# Ultimate data-cleaninig
+# Remove trips which length < 0
+tripdata <- tripdata %>% filter(!(ride_length < 0))
