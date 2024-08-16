@@ -5,6 +5,8 @@ library(readr)
 library(janitor)
 library(rlang)
 library(lubridate)
+library(modeest)
+library(ggplot2)
 
 # Set working directory
 setwd("C:/Users/Ola/Desktop/Adi/dev/google-data-analytics-certificate/cyclistic-riders-analysis")
@@ -114,3 +116,28 @@ View(tripdata %>% filter(is.na(end_station_name)&is.na(end_lat)&is.na(end_lng)) 
 tripdata <- tripdata %>% distinct(ride_id, .keep_all = TRUE)
 # Remove trips which length < 0
 tripdata <- tripdata %>% filter(!(ride_length < 0))
+
+
+
+# ANALYZE
+# Calculate descriptive statistics for ride_length
+tripdata %>% summarize(max_len = seconds_to_period(max(ride_length)),
+                       min_len = seconds_to_period(min(ride_length)),
+                       avg_len = seconds_to_period(mean(ride_length)),
+                       median_len = seconds_to_period(median(ride_length)),
+                       stdev_len = seconds_to_period(sd(ride_length)))
+# Calculate the mode of day_of_week
+mfv(tripdata$day_of_week)
+# Calculate the average ride_length for members and casual riders
+tripdata %>% group_by(member_casual) %>% summarize(avg = mean(ride_length),
+                                                   median = median(ride_length))
+# Calculate the average ride_length for users by day_of_week
+tripdata %>% group_by(member_casual, day_of_week) %>%
+  summarize(avg = mean(ride_length),
+            median = median(ride_length))
+# Calculate the number of rides for users by day_of_week
+tripdata %>% group_by(member_casual, day_of_week) %>%
+  summarize(rides = n())
+
+tripdata <- tripdata %>% filter(ride_length > 100000)
+hist(as.numeric(tripdata$ride_length))
