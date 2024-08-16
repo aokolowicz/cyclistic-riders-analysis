@@ -79,6 +79,10 @@ tripdata %>% mutate(date = as.Date(started_at),
   group_by(date, month) %>% summarize() %>% 
   group_by(month) %>% summarize(no_of_days = n())
 
+# Check for duplicates
+View(tripdata %>% group_by(ride_id) %>% summarize(n = n()) %>%
+  arrange(desc(n)) %>% 
+  filter(n > 1))
 
 # Check if there are NA values
 # sym(col) converts the column name (a string) into a symbol
@@ -88,7 +92,7 @@ for (col in colnames(tripdata)) {
   print(tripdata %>% filter(is.na(!!sym(col))))
 }
 
-# Check if missing station ids and names can be filled
+# Check if missing station ids and names can be filled in
 # Non-missing start_station_name values
 View(tripdata %>% filter(!is.na(start_station_name)) %>% 
   select(start_station_name, start_station_id, start_lat, start_lng))
@@ -100,11 +104,13 @@ View(tripdata %>% filter(!(is.na(end_station_name)&is.na(end_lat)&is.na(end_lng)
   select(end_station_name, end_station_id, end_lat, end_lng))
 # Missing end_station_name values and non-missing end_lat and end_lng values
 View(tripdata %>% filter(is.na(end_station_name)&!(is.na(end_lat)&is.na(end_lng))) %>% 
-       select(end_station_name, end_station_id, end_lat, end_lng))
+  select(end_station_name, end_station_id, end_lat, end_lng))
 # Missing end_station_name, end_lat, and end_lng values
 View(tripdata %>% filter(is.na(end_station_name)&is.na(end_lat)&is.na(end_lng)) %>% 
-       select(end_station_name, end_station_id, end_lat, end_lng))
+  select(end_station_name, end_station_id, end_lat, end_lng))
 
 # Ultimate data-cleaninig
+# Remove duplicates
+tripdata <- tripdata %>% distinct(ride_id, .keep_all = TRUE)
 # Remove trips which length < 0
 tripdata <- tripdata %>% filter(!(ride_length < 0))

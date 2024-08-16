@@ -1,13 +1,17 @@
 # Changelog
 This file contains the notable changes to the project
 
+Version 1.0.2 (2023-08-16)
+## Fix
+    - Removed duplicates based on ride_id field (211 rows)
+
 Version 1.0.1 (2024-08-14)
 ## New
     - Added check for missing and inconsistent values (membership types, bike types, dates, min and max ride_length, missing values in all columns)
     - Added check if missing values can be filled in
     - Added check for truncated data
 ## Fix
-    - Removed trips with a length less than zero from the dataset
+    - Removed trips with a length less than zero from the dataset (404 rows)
 
 Version 1.0.0 (2024-08-12)
 ## New
