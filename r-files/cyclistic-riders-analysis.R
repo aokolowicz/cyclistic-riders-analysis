@@ -129,15 +129,40 @@ tripdata %>% summarize(max_len = seconds_to_period(max(ride_length)),
 # Calculate the mode of day_of_week
 mfv(tripdata$day_of_week)
 # Calculate the average ride_length for members and casual riders
-tripdata %>% group_by(member_casual) %>% summarize(avg = mean(ride_length),
-                                                   median = median(ride_length))
+tripdata %>% group_by(member_casual) %>%
+  summarize(avg = mean(ride_length), median = median(ride_length))
 # Calculate the average ride_length for users by day_of_week
 tripdata %>% group_by(member_casual, day_of_week) %>%
-  summarize(avg = mean(ride_length),
-            median = median(ride_length))
+  summarize(avg = mean(ride_length), median = median(ride_length))
 # Calculate the number of rides for users by day_of_week
 tripdata %>% group_by(member_casual, day_of_week) %>%
   summarize(rides = n())
 
-tripdata <- tripdata %>% filter(ride_length > 100000)
-hist(as.numeric(tripdata$ride_length))
+# Testing stacked histogram of ride_length for members and casual riders (1 hr)
+tripdata2 <- tripdata %>% filter(ride_length < 60*60)
+ggplot(tripdata2, aes(x = ride_length, fill = member_casual)) + geom_histogram() +
+labs(x = "Ride Length (s)",
+     y = "No. of Rides",
+     title = "Distribution of Ride Length",
+     subtitle = "1st Hour from Rent Time")
+
+# How many rides longer than 1 day are per months?
+tripdata %>% mutate(month = as.POSIXlt(started_at)$mon + 1) %>% 
+  filter(ride_length > days(1)) %>% group_by(month) %>%
+  summarize(n())
+# Calculate descriptive statistics for ride_length per month
+tripdata %>% mutate(month = as.POSIXlt(started_at)$mon + 1) %>% 
+  group_by(month) %>% summarize(rides = n(),
+                                max_len = seconds_to_period(max(ride_length)),
+                                min_len = seconds_to_period(min(ride_length)),
+                                avg_len = seconds_to_period(mean(ride_length)),
+                                median_len = seconds_to_period(median(ride_length)),
+                                stdev_len = seconds_to_period(sd(ride_length)))
+# Calculate the mode of day_of_week per month
+tripdata %>% mutate(month = as.POSIXlt(started_at)$mon + 1) %>% 
+  group_by(month) %>% summarize(mfv(tripdata$day_of_week))
+# Calculate the average ride_length for members and casual riders per month
+tripdata %>% mutate(month = as.POSIXlt(started_at)$mon + 1) %>% 
+  group_by(member_casual, month) %>%
+  summarize(avg = mean(ride_length), median = median(ride_length)) %>% 
+  print(n=24)
