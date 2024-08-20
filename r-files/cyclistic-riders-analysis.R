@@ -77,7 +77,7 @@ View(tripdata %>% mutate(date = as.Date(started_at)) %>%
   group_by(date) %>% tally())
 # Check the number of days in each month of trips
 tripdata %>% mutate(date = as.Date(started_at),
-                    month = as.POSIXlt(started_at)$mon + 1) %>%
+                    month = month(started_at)) %>%
   group_by(date, month) %>% summarize() %>% 
   group_by(month) %>% summarize(no_of_days = n())
 
@@ -139,30 +139,70 @@ tripdata %>% group_by(member_casual, day_of_week) %>%
   summarize(rides = n())
 
 # Testing stacked histogram of ride_length for members and casual riders (1 hr)
-tripdata2 <- tripdata %>% filter(ride_length < 60*60)
-ggplot(tripdata2, aes(x = ride_length, fill = member_casual)) + geom_histogram() +
-labs(x = "Ride Length (s)",
-     y = "No. of Rides",
-     title = "Distribution of Ride Length",
-     subtitle = "1st Hour from Rent Time")
+ggplot(tripdata, aes(x = ride_length, fill = member_casual)) +
+  geom_histogram(binwidth = 120, boundary = 0, color = "black") +
+  scale_fill_manual(values = c("member" = "royalblue3", "casual" = "firebrick3")) +
+  scale_x_continuous(limits = c(0, 3600),
+                     breaks = seq(0, 3600, by = 600),
+                     labels = scales::label_number(scale = 1 / 60)) + 
+  scale_y_continuous(labels = scales::label_number(scale = 1e-3, suffix = "k")) +
+  labs(x = "Ride Length (min)",
+       y = "Number of Rides",
+       title = "Distribution of Ride Length",
+       subtitle = "First Hour of Rental",
+       fill = "")
 
 # How many rides longer than 1 day are per months?
-tripdata %>% mutate(month = as.POSIXlt(started_at)$mon + 1) %>% 
+tripdata %>% mutate(month = month(started_at)) %>% 
   filter(ride_length > days(1)) %>% group_by(month) %>%
   summarize(n())
 # Calculate descriptive statistics for ride_length per month
-tripdata %>% mutate(month = as.POSIXlt(started_at)$mon + 1) %>% 
+tripdata %>% mutate(month = month(started_at)) %>% 
   group_by(month) %>% summarize(rides = n(),
                                 max_len = seconds_to_period(max(ride_length)),
                                 min_len = seconds_to_period(min(ride_length)),
                                 avg_len = seconds_to_period(mean(ride_length)),
                                 median_len = seconds_to_period(median(ride_length)),
                                 stdev_len = seconds_to_period(sd(ride_length)))
-# Calculate the mode of day_of_week per month
-tripdata %>% mutate(month = as.POSIXlt(started_at)$mon + 1) %>% 
-  group_by(month) %>% summarize(mfv(tripdata$day_of_week))
+# Calculate the mode of day_of_week per month per member_casual
+tripdata %>% mutate(month = month(started_at)) %>% 
+  group_by(member_casual, month) %>% summarize(mfv(tripdata$day_of_week)) %>% 
+  print(n=24)
 # Calculate the average ride_length for members and casual riders per month
-tripdata %>% mutate(month = as.POSIXlt(started_at)$mon + 1) %>% 
+tripdata %>% mutate(month = month(started_at)) %>% 
   group_by(member_casual, month) %>%
   summarize(avg = mean(ride_length), median = median(ride_length)) %>% 
   print(n=24)
+# The most popular start_station for members and casual riders
+tripdata %>% group_by(member_casual, start_station_id) %>% 
+  summarize(rides = n()) %>% arrange(desc(rides))
+
+
+# Prepare data by aggregating rides per day
+trips_per_day <- tripdata %>%
+  mutate(date = as.Date(started_at),
+         mday = mday(started_at),
+         month = month(started_at, label = TRUE, abbr = FALSE),
+         year = year(started_at)) %>%
+  group_by(date, mday, month, year, member_casual) %>%
+  summarize(rides = n(), .groups = "drop")
+# Plotting with date as x-axis and faceting by month and year
+ggplot(data = trips_per_day) +
+  geom_line(aes(x = mday,
+                y = rides,
+                color = member_casual),
+            linewidth = 1) +
+  guides(color = guide_legend(reverse=TRUE)) +
+  scale_color_manual(values = c("member" = "royalblue3", "casual" = "firebrick3")) +
+  scale_x_continuous(breaks = c(1, 5, 10, 15, 20, 25, 30)) +
+  scale_y_continuous(limits = c(0, 2e4),
+                     labels = scales::label_number(scale = 1e-3, suffix = "k")) +
+  labs(x = "",
+       y = "Number of Rides",
+       title = "Daily Rides Over Time",
+       subtitle = "Grouped by Membership Type",
+       color = "") +
+  facet_wrap(~ year + month, ncol = 3, scales = "free_x") + 
+  theme(legend.position = "top")
+
+              

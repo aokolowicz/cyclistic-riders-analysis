@@ -1,6 +1,14 @@
 # Changelog
 This file contains the notable changes to the project
 
+Version 1.0.4 (2023-08-20)
+## New
+    - Add number of rides per month per membership plots
+
+Version 1.0.3 (2023-08-19)
+## New
+    - Add descriptive statistics and exploratory analysis for each month
+
 Version 1.0.2 (2023-08-16)
 ## Fix
     - Removed duplicates based on ride_id field (211 rows)
