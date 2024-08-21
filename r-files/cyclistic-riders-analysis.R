@@ -169,6 +169,8 @@ tripdata %>% group_by(member_casual, start_station_id) %>%
   summarize(rides = n()) %>% arrange(desc(rides))
 
 
+
+
 # DATA VIZ
 # Stacked histogram of ride_length for members and casual riders (1 hr)
 ggplot(tripdata, aes(x = ride_length, fill = member_casual)) +
@@ -210,3 +212,47 @@ ggplot(data = trips_per_day) +
        color = "") +
   facet_wrap(~ year + month, ncol = 3, scales = "free_x") + 
   theme(legend.position = "top")
+
+# Prepare data by aggregating trips per user per month
+trips_per_month <- tripdata %>% 
+  mutate(year = year(started_at),
+         month = month(started_at),
+         month_name = month(started_at, label = TRUE, abbr = TRUE),
+         month_year = factor(paste(month_name, "\n", year), 
+                             levels = unique(paste(month_name, "\n", year)), 
+                             ordered = TRUE)) %>% 
+  group_by(member_casual, year, month, month_name, month_year) %>%
+  summarize(avg = mean(ride_length), 
+            median = median(ride_length),
+            count = n(),
+            .groups = "drop")
+# Plot combo chart for average ride_length and count per month per user
+ggplot(data = trips_per_month, aes(x = month_year)) +
+  # Bar chart for number of rides
+  geom_bar(aes(y = count, 
+               fill = member_casual), 
+           stat = "identity", 
+           position = "dodge", 
+           alpha = 0.3) +
+  # Line chart for average ride length per month
+  geom_line(aes(y = avg * 333,  # Adjusted for scaling on the secondary axis
+                color = member_casual, 
+                group = member_casual),
+            linewidth = 1) +
+  # Custom color scales
+  scale_color_manual(values = c("member" = "royalblue3", "casual" = "firebrick3")) +
+  scale_fill_manual(values = c("member" = "royalblue3", "casual" = "firebrick3")) +
+  # Primary y-axis for number of rides
+  scale_y_continuous(name = "Number of Rides",
+                     limits = c(0, 5e5),
+                     labels = scales::label_number(scale = 1e-3, suffix = "k"),
+                     # Secondary y-axis for average ride length
+                     sec.axis = sec_axis(~ . / 333, # Adjust to match original scale (dot represents the original y-axis values)
+                                         name = "Average Ride Length (min)",
+                                         breaks = seq(0, 25 * 60, by = 5 * 60),
+                                         labels = scales::label_number(scale = 1/60))) +
+  labs(x = "",
+       title = "Number of Rides and Average Ride Length",
+       subtitle = "Grouped by Membership Type",
+       color = "Membership\nType",
+       fill = "Membership\nType")
