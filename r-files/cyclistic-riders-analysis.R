@@ -224,12 +224,12 @@ trips_per_month <- tripdata %>%
   group_by(member_casual, year, month, month_name, month_year) %>%
   summarize(avg = mean(ride_length), 
             median = median(ride_length),
-            count = n(),
+            rides = n(),
             .groups = "drop")
-# Plot combo chart for average ride_length and count per month per user
+# Plot combo chart for average ride_length and number of rides per month per user
 ggplot(data = trips_per_month, aes(x = month_year)) +
   # Bar chart for number of rides
-  geom_bar(aes(y = count, 
+  geom_bar(aes(y = rides, 
                fill = member_casual), 
            stat = "identity", 
            position = "dodge", 
@@ -254,5 +254,46 @@ ggplot(data = trips_per_month, aes(x = month_year)) +
   labs(x = "",
        title = "Number of Rides and Average Ride Length",
        subtitle = "Grouped by Membership Type",
+       color = "Membership\nType",
+       fill = "Membership\nType")
+
+# Prepare data by aggregating trips per user per day_of_week
+trips_per_dow <- tripdata %>%
+  mutate(dow = wday(started_at, label = TRUE, abbr = FALSE)) %>% 
+  group_by(member_casual, day_of_week, dow) %>%
+  summarize(avg = mean(ride_length),
+            median = median(ride_length),
+            rides = n(),
+            .groups = "drop")
+# Plot combo chart for average ride_length and number of rides per day_of_week per user
+ggplot(data = trips_per_dow, aes(x = dow)) +
+  # Bar chart for number of rides
+  geom_bar(aes(y = rides, 
+               fill = member_casual), 
+           stat = "identity", 
+           position = "dodge", 
+           alpha = 0.3) +
+  # Line chart for average ride length per month
+  geom_line(aes(y = avg * 500,  # Adjusted for scaling on the secondary axis
+                color = member_casual, 
+                group = member_casual),
+            linewidth = 1) +
+  # Custom color scales
+  scale_color_manual(values = c("member" = "royalblue3", "casual" = "firebrick3")) +
+  scale_fill_manual(values = c("member" = "royalblue3", "casual" = "firebrick3")) +
+  # Primary y-axis for number of rides
+  scale_y_continuous(name = "Number of Rides",
+                     limits = c(0, 7.5e5),
+                     breaks = seq(0, 7.5e5, by=1.5e5),
+                     labels = scales::label_number(scale = 1e-3, suffix = "k"),
+                     # Secondary y-axis for average ride length
+                     sec.axis = sec_axis(~ . / 500, # Adjust to match original scale (dot represents the original y-axis values)
+                                         name = "Average Ride Length (min)",
+                                         breaks = seq(0, 25 * 60, by = 5 * 60),
+                                         labels = scales::label_number(scale = 1/60))) +
+  labs(x = "",
+       title = "Number of Rides and Average Ride Length by Day of Week",
+       subtitle = "Grouped by Membership Type",
+       caption = "Data from August 1, 2023 to July 31, 2024",
        color = "Membership\nType",
        fill = "Membership\nType")

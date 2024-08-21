@@ -4,6 +4,7 @@ This file contains the notable changes to the project
 Version 1.0.5 (2024-08-21)
 ## New
     - Add average ride length and count per month per user plot
+    - Add average ride length and number of rides per month per user plot
 ## Fix
     - Removed trips which length > 24 hours (7958 rows)
     - Refactor and reorganize the code
