@@ -166,16 +166,21 @@ tripdata %>% group_by(member_casual, day_of_week) %>%
   summarize(rides = n())
 # The most popular start_station for members and casual riders
 tripdata %>% group_by(member_casual, start_station_id) %>% 
+  summarize(rides = n()) %>% arrange(desc(rides)) %>% print(n = 12)
+# Determine start_station_name and coordinates
+tripdata %>% mutate(lat = as.character(start_lat), lng = as.character(start_lng)) %>% 
+  select(start_station_id, start_station_name, lat, lng) %>% 
+  filter(start_station_id == "KA1504000135") %>% print(n = 1)
+# Determine rideable_type per user
+tripdata %>% group_by(member_casual, rideable_type) %>% 
   summarize(rides = n()) %>% arrange(desc(rides))
-
-
 
 
 # DATA VIZ
 # Stacked histogram of ride_length for members and casual riders (1 hr)
 ggplot(tripdata, aes(x = ride_length, fill = member_casual)) +
   geom_histogram(binwidth = 120, boundary = 0, color = "black") +
-  scale_fill_manual(values = c("member" = "royalblue3", "casual" = "firebrick3")) +
+  scale_fill_manual(values = c("member" = "dodgerblue2", "casual" = "darkorange2")) +
   scale_x_continuous(limits = c(0, 3600),
                      breaks = seq(0, 3600, by = 600),
                      labels = scales::label_number(scale = 1 / 60)) + 
@@ -184,6 +189,7 @@ ggplot(tripdata, aes(x = ride_length, fill = member_casual)) +
        y = "Number of Rides",
        title = "Distribution of Ride Length",
        subtitle = "First Hour of Rental",
+       caption = "Data from August 1, 2023 to July 31, 2024",
        fill = "")
 
 # Prepare data by aggregating rides per day
@@ -201,7 +207,7 @@ ggplot(data = trips_per_day) +
                 color = member_casual),
             linewidth = 1) +
   guides(color = guide_legend(reverse=TRUE)) +
-  scale_color_manual(values = c("member" = "royalblue3", "casual" = "firebrick3")) +
+  scale_color_manual(values = c("member" = "dodgerblue2", "casual" = "darkorange2")) +
   scale_x_continuous(breaks = c(1, 5, 10, 15, 20, 25, 30)) +
   scale_y_continuous(limits = c(0, 2e4),
                      labels = scales::label_number(scale = 1e-3, suffix = "k")) +
@@ -231,17 +237,17 @@ ggplot(data = trips_per_month, aes(x = month_year)) +
   # Bar chart for number of rides
   geom_bar(aes(y = rides, 
                fill = member_casual), 
-           stat = "identity", 
-           position = "dodge", 
-           alpha = 0.3) +
+           stat = "identity", # Use actual values for the height
+           position = "dodge", # Bars next to each other, not stacked
+           alpha = 0.4) +
   # Line chart for average ride length per month
   geom_line(aes(y = avg * 333,  # Adjusted for scaling on the secondary axis
                 color = member_casual, 
                 group = member_casual),
             linewidth = 1) +
   # Custom color scales
-  scale_color_manual(values = c("member" = "royalblue3", "casual" = "firebrick3")) +
-  scale_fill_manual(values = c("member" = "royalblue3", "casual" = "firebrick3")) +
+  scale_color_manual(values = c("member" = "dodgerblue2", "casual" = "darkorange2")) +
+  scale_fill_manual(values = c("member" = "dodgerblue2", "casual" = "darkorange2")) +
   # Primary y-axis for number of rides
   scale_y_continuous(name = "Number of Rides",
                      limits = c(0, 5e5),
@@ -279,8 +285,8 @@ ggplot(data = trips_per_dow, aes(x = dow)) +
                 group = member_casual),
             linewidth = 1) +
   # Custom color scales
-  scale_color_manual(values = c("member" = "royalblue3", "casual" = "firebrick3")) +
-  scale_fill_manual(values = c("member" = "royalblue3", "casual" = "firebrick3")) +
+  scale_color_manual(values = c("member" = "dodgerblue2", "casual" = "darkorange2")) +
+  scale_fill_manual(values = c("member" = "dodgerblue2", "casual" = "darkorange2")) +
   # Primary y-axis for number of rides
   scale_y_continuous(name = "Number of Rides",
                      limits = c(0, 7.5e5),
@@ -297,3 +303,28 @@ ggplot(data = trips_per_dow, aes(x = dow)) +
        caption = "Data from August 1, 2023 to July 31, 2024",
        color = "Membership\nType",
        fill = "Membership\nType")
+
+# Determine rideable_type per user
+trips_per_biketype <- tripdata %>%
+  mutate(dow = wday(started_at, label = TRUE, abbr = TRUE)) %>%
+  group_by(member_casual, day_of_week, dow, rideable_type) %>% 
+  summarize(rides = n(), .groups = "drop")
+# Bar plot of bike types popularity per user per day_of_week
+ggplot(data = trips_per_biketype) +
+  geom_bar(aes(x = dow,
+               y = rides,
+               fill = rideable_type),
+           stat = "identity") +
+  scale_fill_manual(values = c("classic_bike" = "pink4",
+                               "docked_bike" = "grey20",
+                               "electric_bike" = "cadetblue4")) +
+  scale_y_continuous(limits = c(0, 7.5e5),
+                     breaks = seq(0, 7.5e5, by=1.5e5),
+                     labels = scales::label_number(scale = 1e-3, suffix = "k")) +
+  facet_wrap(~ member_casual) +
+  labs(x = "",
+       y = "Number of Rides",
+       title = "Number of Rides by Bike Type",
+       subtitle = "Grouped by Membership Type",
+       caption = "Data from August 1, 2023 to July 31, 2024",
+       fill = "Bike Type")

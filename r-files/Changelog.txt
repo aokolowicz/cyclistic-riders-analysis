@@ -5,9 +5,12 @@ Version 1.0.5 (2024-08-21)
 ## New
     - Add average ride length and count per month per user plot
     - Add average ride length and number of rides per month per user plot
+    - Add number of rides by bike type per membership plot
 ## Fix
     - Removed trips which length > 24 hours (7958 rows)
     - Refactor and reorganize the code
+## Changes
+    - Change data visualization colors
 
 Version 1.0.4 (2024-08-20)
 ## New
