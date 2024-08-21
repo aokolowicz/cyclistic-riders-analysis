@@ -116,6 +116,12 @@ View(tripdata %>% filter(is.na(end_station_name)&is.na(end_lat)&is.na(end_lng)) 
 tripdata <- tripdata %>% distinct(ride_id, .keep_all = TRUE)
 # Remove trips which length < 0
 tripdata <- tripdata %>% filter(!(ride_length < 0))
+# Remove trips which length > 24 hours
+View(tripdata %>% filter((ride_length > days(1))) %>% 
+  select(ride_length, end_station_id, end_station_name, end_lat) %>% 
+  mutate(len = seconds_to_period(ride_length)) %>% 
+  arrange((end_station_id)))
+tripdata <- tripdata %>% filter(!(ride_length > days(1)))
 
 
 
@@ -205,4 +211,4 @@ ggplot(data = trips_per_day) +
   facet_wrap(~ year + month, ncol = 3, scales = "free_x") + 
   theme(legend.position = "top")
 
-              
+tripdata %>% filter(ride_length < 3600) %>% summarize(avg = mean(rideable_length))
