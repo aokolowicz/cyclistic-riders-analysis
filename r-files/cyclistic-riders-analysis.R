@@ -258,7 +258,7 @@ ggplot(data = trips_per_month, aes(x = month_year)) +
                                          breaks = seq(0, 25 * 60, by = 5 * 60),
                                          labels = scales::label_number(scale = 1/60))) +
   labs(x = "",
-       title = "Number of Rides and Average Ride Length",
+       title = "Number of Rides and Average Ride Length by Month",
        subtitle = "Grouped by Membership Type",
        color = "Membership\nType",
        fill = "Membership\nType")
