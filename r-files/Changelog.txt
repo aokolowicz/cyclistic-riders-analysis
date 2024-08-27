@@ -7,7 +7,7 @@ Version 1.0.5 (2024-08-21)
     - Add average ride length and number of rides per month per user plot
     - Add number of rides by bike type per membership plot
 ## Fix
-    - Removed trips which length > 24 hours (7958 rows)
+    - Removed trips which length > 24 hours - bike considered lost or stolen (7958 rows)
     - Refactor and reorganize the code
 ## Changes
     - Change data visualization colors
@@ -22,21 +22,21 @@ Version 1.0.3 (2024-08-19)
 
 Version 1.0.2 (2024-08-16)
 ## Fix
-    - Removed duplicates based on ride_id field (211 rows)
+    - Removed duplicates based on ride_id field to properly count the number of trips (211 rows)
 
 Version 1.0.1 (2024-08-14)
 ## New
     - Added check for missing and inconsistent values (membership types, bike types, dates, min and max ride_length, missing values in all columns)
-    - Added check if missing values can be filled in
-    - Added check for truncated data
+    - Added check if missing values can be filled in to possibly complete the data (station names cannot be filled in because when they are missing the coordinates differ in the number of decimal places; 2 when missing vs. 5)
+    - Added check for truncated data to find missing days (no missing days)
 ## Fix
-    - Removed trips with a length less than zero from the dataset (404 rows)
+    - Removed trips with a length less than zero from the dataset (erroneous data, 404 rows)
 
 Version 1.0.0 (2024-08-12)
 ## New
-    - Merged all 12 CSV data files into one data frame
+    - Merged all 12 CSV data files into one data frame to make analysis easier on aggregate data
     - Added column ride_length to calculate the length of each ride
     - Added column day_of_week to calculate the day of the week that each ride started and changed to 1 = Sunday and 7 = Saturday
 
 ## Changes 
-    - Cleaned column names (only characters, numbers, and underscores)
+    - Cleaned column names (cosmetic; only characters, numbers, and underscores)
