@@ -1,27 +1,35 @@
 # Changelog
 This file contains the notable changes to the project
 
+Version 1.0.7 (2024-08-29)
+## Changes
+    - Removed blank lines and spaces
+
+Version 1.0.6 (2024-08-27)
+## Changes
+    - Changed title in combo chart for average ride_length and number of rides per month per user
+
 Version 1.0.5 (2024-08-21)
 ## New
-    - Add average ride length and count per month per user plot
-    - Add average ride length and number of rides per month per user plot
-    - Add number of rides by bike type per membership plot
-## Fix
+    - Added average ride length and count per month per user plot
+    - Added average ride length and number of rides per month per user plot
+    - Added number of rides by bike type per membership plot
+## Fixes
     - Removed trips which length > 24 hours - bike considered lost or stolen (7958 rows)
-    - Refactor and reorganize the code
+    - Refactored and reorganized the code
 ## Changes
-    - Change data visualization colors
+    - Changed data visualization colors
 
 Version 1.0.4 (2024-08-20)
 ## New
-    - Add number of rides per month per membership plots
+    - Added number of rides per month per membership plots
 
 Version 1.0.3 (2024-08-19)
 ## New
-    - Add descriptive statistics and exploratory analysis for each month
+    - Added descriptive statistics and exploratory analysis for each month
 
 Version 1.0.2 (2024-08-16)
-## Fix
+## Fixes
     - Removed duplicates based on ride_id field to properly count the number of trips (211 rows)
 
 Version 1.0.1 (2024-08-14)
@@ -29,7 +37,7 @@ Version 1.0.1 (2024-08-14)
     - Added check for missing and inconsistent values (membership types, bike types, dates, min and max ride_length, missing values in all columns)
     - Added check if missing values can be filled in to possibly complete the data (station names cannot be filled in because when they are missing the coordinates differ in the number of decimal places; 2 when missing vs. 5)
     - Added check for truncated data to find missing days (no missing days)
-## Fix
+## Fixes
     - Removed trips with a length less than zero from the dataset (erroneous data, 404 rows)
 
 Version 1.0.0 (2024-08-12)

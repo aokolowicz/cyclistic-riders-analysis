@@ -8,9 +8,6 @@ library(lubridate)
 library(modeest)
 library(ggplot2)
 
-# Set working directory
-setwd("C:/Users/Ola/Desktop/Adi/dev/google-data-analytics-certificate/cyclistic-riders-analysis")
-
 # Import data from the subfolder
 tripdata_202308 <- read_csv("raw-data/202308-divvy-tripdata.csv")
 tripdata_202309 <- read_csv("raw-data/202309-divvy-tripdata.csv")
@@ -111,7 +108,7 @@ View(tripdata %>% filter(is.na(end_station_name)&!(is.na(end_lat)&is.na(end_lng)
 View(tripdata %>% filter(is.na(end_station_name)&is.na(end_lat)&is.na(end_lng)) %>% 
   select(end_station_name, end_station_id, end_lat, end_lng))
 
-# Ultimate data-cleaninig
+# Ultimate data-cleaning
 # Remove duplicates
 tripdata <- tripdata %>% distinct(ride_id, .keep_all = TRUE)
 # Remove trips which length < 0
@@ -126,7 +123,6 @@ View(tripdata %>% filter((ride_length > days(1))) %>%
   mutate(len = seconds_to_period(ride_length)) %>% 
   arrange((end_station_id)))
 tripdata <- tripdata %>% filter(!(ride_length > days(1)))
-
 
 
 # ANALYZE
@@ -321,7 +317,7 @@ ggplot(data = trips_per_biketype) +
   scale_y_continuous(limits = c(0, 7.5e5),
                      breaks = seq(0, 7.5e5, by=1.5e5),
                      labels = scales::label_number(scale = 1e-3, suffix = "k")) +
-  facet_wrap(~ member_casual) +
+  facet_wrap(~member_casual) +
   labs(x = "",
        y = "Number of Rides",
        title = "Number of Rides by Bike Type",
