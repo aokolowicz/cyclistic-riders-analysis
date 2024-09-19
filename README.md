@@ -3,7 +3,7 @@
 > [!NOTE]
 > This project deals with the Cyclistic bike-share analysis case study developed by Google for the [Google Data Analytics Professional Certificate](https://www.coursera.org/professional-certificates/google-data-analytics) program.
 
-&#x25B6; *Click [here](#conclusions-data-story-and-visualizations) to jump directly to the [Conclusions](#conclusions-data-story-and-visualizations) section.*
+&#x25B6; *Click [here](#conclusions-data-story-and-visualizations) to jump directly to the [Conclusions (data story & viz)](#conclusions-data-story-and-visualizations) section.*
 
 ## Introduction
 
